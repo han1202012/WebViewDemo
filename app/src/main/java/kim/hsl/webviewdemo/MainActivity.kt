@@ -1,5 +1,7 @@
 package kim.hsl.webviewdemo
 
+import android.content.Intent
+import android.net.Uri
 import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +13,7 @@ import android.webkit.*
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import java.util.*
+
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // 获取 WebView 组件
-        val webview = findViewById<WebView>(R.id.webview)
+        val webview: WebView = findViewById<WebView>(R.id.webview)
 
         // 获取并设置 Web 设置
         val settings = webview.settings
@@ -62,7 +65,7 @@ class MainActivity : AppCompatActivity() {
             // JavaScript 出错不报异常
             try {
                 // 启用 调试模式
-                // 由于 WebView#setWebContentsDebuggingEnabled 函数不能直接访问
+                // 某些版本 WebView#setWebContentsDebuggingEnabled 函数不能直接访问
                 // 必须使用反射进行访问
                 val method = Class.forName("android.webkit.WebView")
                     .getMethod("setWebContentsDebuggingEnabled", java.lang.Boolean.TYPE)
@@ -111,6 +114,15 @@ class MainActivity : AppCompatActivity() {
                 if (url.startsWith("http://") || url.startsWith("https://")) {
                     view.loadUrl(url)
                     return true
+                } else {
+                    if (url.startsWith("weixin://") ||
+                        url.startsWith("alipays://") ||
+                        url.startsWith("tel://") ||
+                        url.startsWith("baiduboxapp://") ) {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        startActivity(intent)
+                        return true
+                    }
                 }
                 return false
             }
